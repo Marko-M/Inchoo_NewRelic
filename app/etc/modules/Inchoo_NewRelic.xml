@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<config>
+    <modules>
+        <Inchoo_NewRelic>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Enterprise_PageCache/>
+            </depends>
+        </Inchoo_NewRelic>
+    </modules>
+</config>
