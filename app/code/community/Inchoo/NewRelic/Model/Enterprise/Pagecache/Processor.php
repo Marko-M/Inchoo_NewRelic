@@ -47,46 +47,34 @@ class Inchoo_NewRelic_Model_Enterprise_Pagecache_Processor extends Enterprise_Pa
     {
         $content =  parent::extractContent($content);
 
-        $registryContent = Mage::registry('cached_page_content');
+        // If compiler disabled, do not proceed
+        if(!defined('COMPILER_INCLUDE_PATH')) {
+            return $content;
+        }
 
         /*
-         * We want to catch situation where body content doesn't originate
-         * in it's own route. This is when whole page is served from cache,
-         * or when cached content is to be processed for hole punching
-         * on pagecache/request/process route.
+         * Name the transaction when loading from FPC:
+         *
+         * 1. When whole page is served from cache
+         * 2. When cached content is to be processed for hole punching on pagecache/request/process route.
+         *
+         * Else, controller_action_predispatch observer will name the transaction.
          */
-        if($content || $registryContent) {
-            /*
-             * It's too early into request to have Mage::helper() available
-             */
-            $helper = new Inchoo_NewRelic_Helper_Data();
+        if($content || Mage::registry('cached_page_content')) {
+            if (extension_loaded ('newrelic')) {
+                $route = $this->getMetadata('routing_requested_route');
+                $controller = $this->getMetadata('routing_requested_controller');
+                $action = $this->getMetadata('routing_requested_action');
 
-            $transactionName = $this->getMetadata(Inchoo_NewRelic_Helper_Data::INCHOO_NEWRELIC_METADATA_KEY);
+                $transactionName = "$route/$controller/$action";
 
-            $helper->nameTransaction($transactionName);
+                newrelic_name_transaction($transactionName);
+
+                //Mage::log(__FUNCTION__.': '.$transactionName);
+            }
         }
 
         return $content;
-    }
-
-    /**
-     *
-     * Save metadata for cache in cache storage
-     *
-     * Inchoo: Additionally save route/controller/action info as request metadata
-     *
-     */
-    protected function _saveMetadata()
-    {
-
-        /** @var Inchoo_NewRelic_Helper_Data $helper */
-        $helper = Mage::helper('inchoo_newrelic');
-
-        $transactionName = $helper->getTransactionNameFromRequest();
-
-        $this->setMetadata(Inchoo_NewRelic_Helper_Data::INCHOO_NEWRELIC_METADATA_KEY, $transactionName);
-
-        return parent::_saveMetadata();
     }
 
 }
