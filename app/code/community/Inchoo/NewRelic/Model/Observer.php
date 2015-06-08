@@ -36,27 +36,40 @@ class Inchoo_NewRelic_Model_Observer
 {
 
     /**
-     * Inchoo: Name transaction with new relic when not loading from FPC.
+     * Name transaction with new relic when not loading from FPC.
      *
      * @param Varien_Event_Observer $observer
      */
     public function nameTransaction(Varien_Event_Observer $observer)
     {
-        /*
-         * Having 'cached_page_content' in registry here means body content is loaded from cache,
-         * and transaction has already been named from request metadata, so skip this.
-         */
-        $registryContent = Mage::registry('cached_page_content');
-        if($registryContent) {
+        // If compiler disabled, do not proceed
+        if(!defined('COMPILER_INCLUDE_PATH')) {
             return;
         }
 
-        /** @var Inchoo_NewRelic_Helper_Data $helper */
-        $helper = Mage::helper('inchoo_newrelic');
+        /*
+         * controller_action_predispatch is also dispatched for pagecache/request/process whose transaction
+         * naming is covered by Inchoo_NewRelic_Model_Enterprise_Pagecache_Processor::extractContent().
+         */
+        if(Mage::registry('cached_page_content')) {
+            return;
+        }
 
-        $transactionName = $helper->getTransactionNameFromRequest();
+        // Name the transaction when not loading from FPC
+        if (extension_loaded ('newrelic')) {
+            $request = Mage::app()->getRequest();
 
-        $helper->nameTransaction($transactionName);
+            $route = $request->getModuleName();
+            $controller = $request->getControllerName();
+            $action = $request->getActionName();
+
+            $transactionName = "$route/$controller/$action";
+
+            newrelic_name_transaction($transactionName);
+
+            //Mage::log(__FUNCTION__.': '.$transactionName);
+        }
+
     }
 
 }

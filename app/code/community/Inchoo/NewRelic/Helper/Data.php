@@ -34,41 +34,5 @@
 
 class Inchoo_NewRelic_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    const INCHOO_NEWRELIC_METADATA_KEY = 'inchoo_newrelic_transaction_name';
-
-    /**
-     * Compose transaction name from request object
-     *
-     * @return string
-     */
-    public function getTransactionNameFromRequest()
-    {
-        /** @var Mage_Core_Controller_Request_Http $request */
-        $request = Mage::app()->getRequest();
-
-        $route = $request->getModuleName();
-        $controller = $request->getControllerName();
-        $action = $request->getActionName();
-
-        return $route.'/'.$controller.'/'.$action;
-    }
-
-    /**
-     * Name the transaction using New Relic PHP agent API
-     *
-     * @param $transactionName
-     */
-    public function nameTransaction($transactionName)
-    {
-        if(!$transactionName) {
-            $transactionName = 'Unknown';
-        }
-
-        if (extension_loaded ('newrelic')) {
-            newrelic_name_transaction($transactionName);
-        }
-
-        //Mage::log(__FUNCTION__.': '.$transactionName);
-    }
 
 }
