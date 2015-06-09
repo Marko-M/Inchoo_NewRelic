@@ -40,7 +40,7 @@
             <!--
             Clobber the Magento Enterprise Edition request processor to add New Relic transaction naming support.
 
-            !!! Comment out this whole file if using Magento Community edition !!!
+            !!! Comment out this whole file if using Magento Community Edition !!!
              -->
             <request_processors>
                 <ee>Inchoo_NewRelic_Model_Enterprise_Pagecache_Processor</ee>
