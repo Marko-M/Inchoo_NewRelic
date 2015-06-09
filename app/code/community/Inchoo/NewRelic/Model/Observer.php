@@ -42,10 +42,6 @@ class Inchoo_NewRelic_Model_Observer
      */
     public function nameTransaction(Varien_Event_Observer $observer)
     {
-        // If compiler disabled, do not proceed
-        if(!defined('COMPILER_INCLUDE_PATH')) {
-            return;
-        }
 
         /*
          * controller_action_predispatch is also dispatched for pagecache/request/process whose transaction

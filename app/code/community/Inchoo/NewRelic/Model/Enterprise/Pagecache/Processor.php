@@ -47,11 +47,6 @@ class Inchoo_NewRelic_Model_Enterprise_Pagecache_Processor extends Enterprise_Pa
     {
         $content =  parent::extractContent($content);
 
-        // If compiler disabled, do not proceed
-        if(!defined('COMPILER_INCLUDE_PATH')) {
-            return $content;
-        }
-
         /*
          * Name the transaction when loading from FPC:
          *
